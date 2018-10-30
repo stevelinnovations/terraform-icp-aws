@@ -57,9 +57,9 @@ ansible_become: true
 network_cidr: ${var.icp_network_cidr}
 service_cluster_ip_range: ${var.icp_service_network_cidr}
 default_admin_password: ${var.icppassword}
-proxy_lb_address: ${aws_lb.icp-proxy.dns_name}
-cluster_lb_address: ${aws_lb.icp-console.dns_name}
-cluster_CA_domain: ${var.user_provided_cert_dns != "" ? var.user_provided_cert_dns : aws_lb.icp-console.dns_name}
+proxy_lb_address: ${aws_route53_record.proxy-nlb.fqdn}
+cluster_lb_address: ${aws_route53_record.console-nlb.fqdn}
+cluster_CA_domain: ${var.user_provided_cert_dns != "" ? var.user_provided_cert_dns : aws_route53_record.console-nlb.fqdn}
 disabled_management_services: [ "istio", "custom-metrics-adapter", "${var.va["nodes"] == 0 ? "va" : "" }", "${var.va["nodes"] == 0 ? "vulnerability-advisor": ""}" ]
 kibana_install: true
 EOF
@@ -77,23 +77,23 @@ resource "aws_s3_bucket_object" "ssh_key" {
 }
 
 output "ICP Console ELB DNS (internal)" {
-  value = "${aws_lb.icp-console.dns_name}"
+  value = "${aws_route53_record.proxy-nlb.fqdn}"
 }
 
 output "ICP Proxy ELB DNS (internal)" {
-  value = "${aws_lb.icp-proxy.dns_name}"
+  value = "${aws_route53_record.proxy-nlb.fqdn}"
 }
 
 output "ICP Console URL" {
-  value = "https://${var.user_provided_cert_dns != "" ? var.user_provided_cert_dns : aws_lb.icp-console.dns_name}:8443"
+  value = "https://${var.user_provided_cert_dns != "" ? var.user_provided_cert_dns : aws_route53_record.console-nlb.fqdn}:8443"
 }
 
 output "ICP Registry ELB URL" {
-  value = "https://${aws_lb.icp-console.dns_name}:8500"
+  value = "https://${aws_route53_record.console-nlb.fqdn}:8500"
 }
 
 output "ICP Kubernetes API URL" {
-  value = "https://${aws_lb.icp-console.dns_name}:8001"
+  value = "https://${aws_route53_record.console-nlb.fqdn}:8001"
 }
 
 output "ICP Admin Username" {

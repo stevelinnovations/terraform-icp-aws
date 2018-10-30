@@ -58,3 +58,27 @@ resource "aws_route53_record" "worker" {
   // matches up record N to instance N
   records = ["${element(aws_instance.icpnodes.*.private_ip, count.index)}"]
 }
+
+resource "aws_route53_record" "proxy-nlb" {
+  zone_id = "${aws_route53_zone.icp_private.zone_id}"
+  name    = "icp-proxy"
+  type    = "A"
+
+  alias {
+    name                   = "${aws_lb.icp-proxy.dns_name}"
+    zone_id                = "${aws_lb.icp-proxy.zone_id}"
+    evaluate_target_health = true
+  }
+}
+
+resource "aws_route53_record" "console-nlb" {
+  zone_id = "${aws_route53_zone.icp_private.zone_id}"
+  name    = "icp-console"
+  type    = "A"
+
+  alias {
+    name                   = "${aws_lb.icp-console.dns_name}"
+    zone_id                = "${aws_lb.icp-console.zone_id}"
+    evaluate_target_health = true
+  }
+}

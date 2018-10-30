@@ -1,6 +1,6 @@
 ####### AWS Access and Region Details #############################
 variable "aws_region" {
-  default  = "us-east-2"
+  default  = "ap-southeast-2"
   description = "One of us-east-2, us-east-1, us-west-1, us-west-2, ap-south-1, ap-northeast-2, ap-southeast-1, ap-southeast-2, ap-northeast-1, us-west-2, eu-central-1, eu-west-1, eu-west-2, sa-east-1"
 }
 
@@ -64,10 +64,10 @@ variable "ami" { default = "" }
 variable "bastion" {
   type = "map"
   default = {
-    nodes     = "0"
+    nodes     = "1"
     type      = "t2.micro"
     ami       = "" // Leave blank to let terraform search for Ubuntu 16.04 ami. NOT RECOMMENDED FOR PRODUCTION
-    disk      = "10" //GB
+    disk      = "60" //GB
   }
 }
 
@@ -75,7 +75,7 @@ variable "master" {
   type = "map"
   default = {
     nodes     = "3"
-    type      = "m4.2xlarge"
+    type      = "m4.xlarge"
     ami       = "" // Leave blank to let terraform search for Ubuntu 16.04 ami. NOT RECOMMENDED FOR PRODUCTION
     disk      = "300" //GB
     docker_vol = "100" // GB
@@ -86,7 +86,7 @@ variable "proxy" {
   type = "map"
   default = {
     nodes     = "3"
-    type      = "m4.xlarge"
+    type      = "m4.large"
     ami       = "" // Leave blank to let terraform search for Ubuntu 16.04 ami. NOT RECOMMENDED FOR PRODUCTION
     disk      = "150" //GB
     docker_vol = "100" // GB
@@ -98,7 +98,7 @@ variable "management" {
   type = "map"
   default = {
     nodes     = "3"
-    type      = "m4.2xlarge"
+    type      = "m4.large"
     ami       = "" // Leave blank to let terraform search for Ubuntu 16.04 ami. NOT RECOMMENDED FOR PRODUCTION
     disk      = "300" //GB
     docker_vol = "100" // GB
@@ -110,7 +110,7 @@ variable "worker" {
   type = "map"
   default = {
     nodes     = "3"
-    type      = "m4.2xlarge"
+    type      = "m4.large"
     ami       = "" // Leave blank to let terraform search for Ubuntu 16.04 ami. NOT RECOMMENDED FOR PRODUCTION
     disk      = "150" //GB
     docker_vol = "100" // GB
@@ -122,7 +122,7 @@ variable "va" {
   type = "map"
   default = {
     nodes     = "3"
-    type      = "m4.2xlarge"
+    type      = "m4.large"
     ami       = "" // Leave blank to let terraform search for Ubuntu 16.04 ami. NOT RECOMMENDED FOR PRODUCTION
     disk      = "300" //GB
     docker_vol = "100" // GB
@@ -157,7 +157,7 @@ variable "patch_scripts" {
 
 variable "icp_inception_image" {
   description = "icp-inception bootstrap image repository"
-  default     = "ibmcom/icp-inception:2.1.0.2-ee"
+  default     = "ibmcom/icp-inception-amd64:3.1.0-ee"
 }
 
 variable "icp_config_yaml" {
