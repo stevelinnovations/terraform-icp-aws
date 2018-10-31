@@ -35,6 +35,15 @@ crlinux_install() {
 
 awscli=/usr/local/bin/aws
 
+pre_docker_mount() {
+  # check if mount specified
+  if grep "$1" /etc/fstab >/dev/null; then
+    [[ ! -e "$1" ]] && sudo mkdir -p "$1"
+    echo "Mounting $1"
+    sudo mount $1
+  fi
+}
+
 docker_install() {
   echo "Install docker from ${package_location}"
   sourcedir=/tmp/icp-docker
@@ -210,6 +219,9 @@ else
   crlinux_install
 fi
 
+pre_docker_mount /var/lib/registry
+pre_docker_mount /var/lib/icp/audit
+sudo mount -a
 docker_install
 image_load
 

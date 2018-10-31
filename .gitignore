@@ -4,6 +4,7 @@
 # .tfstate files
 *.tfstate
 *.tfstate.*
+*.plan
 
 # Crash log files
 crash.log
@@ -30,6 +31,7 @@ awscli/*
 =======
 # .tfvars files
 *.tfvars
+startaws.sh
 
 # generated key files
 *.pem
