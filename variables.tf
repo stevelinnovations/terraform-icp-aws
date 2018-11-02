@@ -85,7 +85,7 @@ variable "master" {
 variable "proxy" {
   type = "map"
   default = {
-    nodes     = "3"
+    nodes     = "0"
     type      = "m4.large"
     ami       = "" // Leave blank to let terraform search for Ubuntu 16.04 ami. NOT RECOMMENDED FOR PRODUCTION
     disk      = "150" //GB
@@ -97,7 +97,7 @@ variable "proxy" {
 variable "management" {
   type = "map"
   default = {
-    nodes     = "3"
+    nodes     = "1"
     type      = "m4.large"
     ami       = "" // Leave blank to let terraform search for Ubuntu 16.04 ami. NOT RECOMMENDED FOR PRODUCTION
     disk      = "300" //GB
@@ -121,7 +121,7 @@ variable "worker" {
 variable "va" {
   type = "map"
   default = {
-    nodes     = "3"
+    nodes     = "1"
     type      = "m4.large"
     ami       = "" // Leave blank to let terraform search for Ubuntu 16.04 ami. NOT RECOMMENDED FOR PRODUCTION
     disk      = "300" //GB
