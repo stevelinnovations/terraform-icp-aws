@@ -502,6 +502,80 @@ resolv_conf:
 EOF
 }
 
+resource "aws_instance" "icpapicnodes" {
+  count         = "${var.apicworker["nodes"]}"
+
+  # Make sure the nodes will have internet access before provisioning
+  depends_on = [
+    "aws_route_table_association.a",
+    "null_resource.icp_install_package",
+    "aws_s3_bucket_object.bootstrap",
+    "aws_s3_bucket_object.docker_install_package"
+  ]
+
+  key_name      = "${var.key_name}"
+  ami           = "${var.apicworker["ami"] != "" ? var.apicworker["ami"] : local.default_ami }"
+  instance_type = "${var.apicworker["type"]}"
+  subnet_id     = "${element(aws_subnet.icp_private_subnet.*.id, count.index)}"
+  vpc_security_group_ids = [
+    "${aws_security_group.default.id}"
+  ]
+
+  availability_zone = "${format("%s%s", element(list(var.aws_region), count.index), element(var.azs, count.index))}"
+
+  iam_instance_profile = "${local.iam_ec2_instance_profile_id}"
+
+  ebs_optimized = "${var.apicworker["ebs_optimized"]}"
+  root_block_device {
+    volume_size = "${var.apicworker["disk"]}"
+  }
+
+  # docker direct-lvm volume
+  ebs_block_device {
+    device_name       = "/dev/xvdx"
+    volume_size       = "${var.apicworker["docker_vol"]}"
+    volume_type       = "gp2"
+  }
+
+  tags = "${merge(
+    var.default_tags,
+    map("Name",  "${format("${var.instance_name}-${random_id.clusterid.hex}-apicworker%02d", count.index + 1) }"),
+    map("kubernetes.io/cluster/${random_id.clusterid.hex}", "${random_id.clusterid.hex}")
+  )}"
+
+  user_data = <<EOF
+#cloud-config
+packages:
+- unzip
+- python
+rh_subscription:
+  enable-repo: rhui-REGION-rhel-server-optional
+write_files:
+- path: /tmp/bootstrap-node.sh
+  permissions: '0755'
+  encoding: b64
+  content: ${base64encode(file("${path.module}/scripts/bootstrap-node.sh"))}
+runcmd:
+- /tmp/bootstrap-node.sh -c ${aws_s3_bucket.icp_config_backup.id} -s "bootstrap.sh"
+- /tmp/icp_scripts/bootstrap.sh ${local.docker_package_uri != "" ? "-p ${local.docker_package_uri}" : "" } -d /dev/xvdx ${local.image_package_uri != "" ? "-i ${local.image_package_uri}" : "" } -s ${var.icp_inception_image} ${length(var.patch_images) > 0 ? "-a \"${join(" ", var.patch_images)}\"" : "" }
+users:
+- default
+- name: icpdeploy
+  groups: [ wheel ]
+  sudo: [ "ALL=(ALL) NOPASSWD:ALL" ]
+  shell: /bin/bash
+  ssh-authorized-keys:
+  - ${tls_private_key.installkey.public_key_openssh}
+fqdn: ${format("${var.instance_name}-apicworker%02d", count.index + 1) }.${random_id.clusterid.hex}.${var.private_domain}
+manage_resolv_conf: true
+resolv_conf:
+  nameservers: [ ${cidrhost(element(aws_subnet.icp_private_subnet.*.cidr_block, count.index), 2)}]
+  domain: ${random_id.clusterid.hex}.${var.private_domain}
+  searchdomains:
+  - ${random_id.clusterid.hex}.${var.private_domain}
+EOF
+}
+
 output "bootmaster" {
   value = "${aws_instance.icpmaster.0.private_ip}"
 }

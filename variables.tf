@@ -65,7 +65,7 @@ variable "bastion" {
   type = "map"
   default = {
     nodes     = "1"
-    type      = "t2.micro"
+    type      = "t2.small"
     ami       = "" // Leave blank to let terraform search for Ubuntu 16.04 ami. NOT RECOMMENDED FOR PRODUCTION
     disk      = "60" //GB
   }
@@ -118,6 +118,17 @@ variable "worker" {
   }
 }
 
+variable "apicworker" {
+  type = "map"
+  default = {
+    nodes     = "1"
+    type      = "m4.xlarge"
+    ami       = "" // Leave blank to let terraform search for Ubuntu 16.04 ami. NOT RECOMMENDED FOR PRODUCTION
+    disk      = "350" //GB
+    docker_vol = "300" // GB
+    ebs_optimized = true    // not all instance types support EBS optimized
+  }
+}
 variable "va" {
   type = "map"
   default = {

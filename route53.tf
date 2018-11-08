@@ -59,6 +59,17 @@ resource "aws_route53_record" "worker" {
   records = ["${element(aws_instance.icpnodes.*.private_ip, count.index)}"]
 }
 
+resource "aws_route53_record" "apicworker" {
+  // same number of records as instances
+  count         = "${var.apicworker["nodes"]}"
+  zone_id       = "${aws_route53_zone.icp_private.zone_id}"
+  name = "${format("${var.instance_name}-apicworker%02d", count.index + 1) }"
+  type = "A"
+  ttl = "300"
+  // matches up record N to instance N
+  records = ["${element(aws_instance.icpnodes.*.private_ip, count.index)}"]
+}
+
 resource "aws_route53_record" "proxy-nlb" {
   zone_id = "${aws_route53_zone.icp_private.zone_id}"
   name    = "icp-proxy"
