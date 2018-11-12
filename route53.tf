@@ -67,7 +67,7 @@ resource "aws_route53_record" "apicworker" {
   type = "A"
   ttl = "300"
   // matches up record N to instance N
-  records = ["${element(aws_instance.icpnodes.*.private_ip, count.index)}"]
+  records = ["${element(aws_instance.icpapicnodes.*.private_ip, count.index)}"]
 }
 
 resource "aws_route53_record" "proxy-nlb" {
